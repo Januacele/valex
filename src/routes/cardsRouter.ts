@@ -5,8 +5,7 @@ const cardRouter = Router();
 
 
 
-cardRouter.get("/card", cardsController.createCard);
-
+cardRouter.post("/card", cardsController.createCard);
 
 
 export default cardRouter;
