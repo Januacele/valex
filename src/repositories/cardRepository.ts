@@ -1,3 +1,5 @@
+import { connect } from "http2";
+import { resourceLimits } from "worker_threads";
 import connection from "../database";
 import { mapObjectToUpdateQuery } from "../utils/sqlUtils.js";
 
@@ -36,6 +38,13 @@ export async function findById(id: number) {
     [id]
   );
 
+  return result.rows[0];
+}
+
+export async function findByNumber(cardNumber: string){
+  const result = await connection.query<Card, [string]>(
+    "SELECT * FROM cards WHERE number = $1", [cardNumber]
+  );
   return result.rows[0];
 }
 
