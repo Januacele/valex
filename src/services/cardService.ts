@@ -7,20 +7,25 @@ import * as cardRepository from '../repositories/cardRepository'
 import * as employeeUtils from '../utils/employeeUtils'
 import * as cardUtils from '../utils/cardUtils'
 import * as employeeRepository from '../repositories/employeeRepository'
+import * as companyService from '../services/companyService';
+import errorResponses from "../Responses/errorResponses";
 
 
+export async function createCardService(apiKey: string, employeeId: number, type: cardRepository.TransactionTypes){
 
-export async function createCardService(companyId: number, employeeId: number, type: cardRepository.TransactionTypes){
+    await companyService.validateApiKey(apiKey); 
 
-    employeeUtils.checkEmployeesIsResistered(employeeId);
-    employeeUtils.checkEmployeesIsFromCompany(companyId, employeeId);
-    cardUtils.checkDoesNotHaveCardType(employeeId, type);
-    
-    const number: string = await generateCardNUmber('####-####-####-####');
-    const cardholderName = await generateCardHolderName(employeeId);
-    const securityCode: any = generateSecurityCode();
+    const employee: any = await employeeUtils.checkEmployeesIsResistered(employeeId);
+    const existingCard = await cardUtils.checkDoesNotHaveCardType(type, employeeId);
+    if(existingCard){
+        return errorResponses.conflict("Card already exist");
+    }
 
-    const expirationDate: any = generateExpirationDate();
+    const number: string = await generateCardNumber('####-####-####-####');
+    const cardholderName: string = await generateCardHolderName(employeeId);
+    const securityCode: string = generateSecurityCode();
+    const expirationDate: string = generateExpirationDate();
+
 
     const cardData: cardRepository.CardInsertData = {
         employeeId,
@@ -29,17 +34,17 @@ export async function createCardService(companyId: number, employeeId: number, t
         securityCode,
         expirationDate,
         password: null,
-        isVirtual:false,
+        isVirtual: false,
         originalCardId: null,
         isBlocked: false,
-        type,
-    }
+        type
+    };
+
     await cardRepository.insert(cardData);
 }
 
-
-async function generateCardNUmber(format: string){
-    let cardNumber = faker.finance.creditCardNumber(format);
+async function generateCardNumber(format: string): Promise<string> {
+    let cardNumber: string = faker.finance.creditCardNumber(format);
     let cardWithThisNumber = await cardRepository.findByNumber(cardNumber);
 
     while (cardWithThisNumber) {
@@ -49,42 +54,42 @@ async function generateCardNUmber(format: string){
     return cardNumber;
 }
 
-async function generateCardHolderName(employeeId: number){
+   
+async function generateCardHolderName(employeeId: number): Promise<string> {
     const { fullName } = await employeeRepository.findById(employeeId);
-    let nameUpper = fullName.toUpperCase().split(' ');
+    let temp = fullName.toUpperCase().split(' ');
 
-    const initialName = nameUpper[0];
-    const lastName = nameUpper[nameUpper.length - 1];
+    const initialName = temp[0];
+    const lastName = temp[temp.length - 1];
 
-    let middleName = nameUpper.filter((name, index) => {
-        return(
+    let middleNames = temp.filter((name, index) => {
+        return (
             name.length >= 3 &&
             index !== 0 &&
-            index !== nameUpper.length - 1
+            index !== temp.length - 1
         )
     });
-
-    middleName = middleName.map(name => {
+    middleNames = middleNames.map(name => {
         return name[0];
     });
-
-    const shortMiddleName = middleName.join(' ');
-
-    return initialName + ' ' + shortMiddleName + ' ' + lastName;
+    const shortMiddleNames = middleNames.join(' ');
+    return initialName + ' ' + shortMiddleNames + ' ' + lastName;
 }
 
-async function generateSecurityCode(){
+
+function generateSecurityCode(): string {
     const securityCode = faker.finance.creditCardCVV();
-    const cryptr: any = new Cryptr(process.env.CRYPT_KEY!) ?? '';
+    const cryptr = new Cryptr(process.env.CRYPT_KEY!);
     const hashedSecurityCode = cryptr.encrypt(securityCode);
     return hashedSecurityCode;
 }
 
-async function generateExpirationDate(){
-    const monthCreatedCard = (dayjs().month()).toString().padStart(2, '0');
-    const yearNow = (dayjs().year());
 
-    const expirationYear = (yearNow + 5).toString().slice(2);
+function generateExpirationDate(): string {
 
-    return monthCreatedCard + '/' + expirationYear;
+    const monthNow: string = (dayjs().month()).toString().padStart(2, '0');
+    const yearNow: number = (dayjs().year());
+    const expirationYear: string = (yearNow + 5).toString().slice(2);
+    return monthNow + '/' + expirationYear;
 }
+ 
