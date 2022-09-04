@@ -1,14 +1,15 @@
 import { connect } from "http2";
+import { string } from "joi";
 import { resourceLimits } from "worker_threads";
 import connection from "../database";
-import { mapObjectToUpdateQuery } from "../utils/sqlUtils.js";
+import { mapObjectToUpdateQuery } from "../utils/sqlUtils";
 
-export type TransactionTypes =
-  | "groceries"
-  | "restaurant"
-  | "transport"
-  | "education"
-  | "health";
+const transactionTypes = ["groceries","restaurant","transport","education","health"];
+
+export type TransactionTypes = (typeof transactionTypes)[number];
+export function isTransactionType(x:any): x is TransactionTypes {
+  return transactionTypes.includes(x);
+}
 
 export interface Card {
   id: number;
@@ -17,9 +18,9 @@ export interface Card {
   cardholderName: string;
   securityCode: string;
   expirationDate: string;
-  password?: string;
+  password?: any;
   isVirtual: boolean;
-  originalCardId?: number;
+  originalCardId?: any;
   isBlocked: boolean;
   type: TransactionTypes;
 }
