@@ -1,6 +1,6 @@
 import { Router } from "express";
 import * as cardsController from '../controllers/cardsController';
-import { checkApiKey, checkcardType } from "../middlewares/cardMIddleware";
+import { checkApiKey } from "../middlewares/cardMIddleware";
 import validSchema from "../middlewares/validSchemaMiddleware";
 import activateCardSchema from "../schemas/activateCardSchema";
 import createCardSchema from "../schemas/creatCardSchema";
@@ -12,9 +12,8 @@ const cardRouter = Router();
 
 
 cardRouter.post("/card",
-    validSchema(createCardSchema),    
     checkApiKey,
-    checkcardType,
+    validSchema(createCardSchema),    
     cardsController.createCard
 );
 

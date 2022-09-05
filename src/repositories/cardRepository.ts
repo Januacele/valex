@@ -1,11 +1,7 @@
 import connection from "../database";
 import { mapObjectToUpdateQuery } from "../utils/sqlUtils";
 
-const transactionTypes = ["groceries", "restaurant", "transport", "education", "health"] as const;
-export type TransactionTypes = (typeof transactionTypes)[number];
-export function isTransactionType(x: any): x is TransactionTypes {
-  return transactionTypes.includes(x);
-}
+export type TransactionTypes = "groceries" | "restaurant" | "transport" | "education" | "health";
 
 export interface Card {
   id: number;
@@ -14,9 +10,9 @@ export interface Card {
   cardholderName: string;
   securityCode: string;
   expirationDate: string;
-  password?: any;
+  password?: string;
   isVirtual: boolean;
-  originalCardId?: any;
+  originalCardId?: number;
   isBlocked: boolean;
   type: TransactionTypes;
 }

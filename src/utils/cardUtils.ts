@@ -7,9 +7,6 @@ import * as paymentRepository from '../repositories/paymentRepository';
 import * as rechargeRepository from '../repositories/rechargeRepository';
 import errorResponses from '../Responses/errorResponses';
 
-export async function checkDoesNotHaveCardType(type: cardRepository.TransactionTypes, employeeId: number): Promise<any>{
-    await cardRepository.findByTypeAndEmployeeId(type, employeeId);
-}
 
 export async function checkCardIsRegistered(id: number): Promise<any> {
     const card = await cardRepository.findById(id);
@@ -37,12 +34,10 @@ export function checkCardHasNotExpired(expirationDate: string) {
     return;
 }
 
-export function checkCardHasNotBeenActivated(password: string | null) {
+export function checkCardHasNotBeenActivated(password: any | null) {
     if (password !== null) {
         return errorResponses.conflict("A password for this card is");
     }
-
-    return;
 }
 
 

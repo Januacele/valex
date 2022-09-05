@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import * as cardRepository from '../repositories/cardRepository';
 import { activateCardService } from "../services/activateCardService";
 import { createCardService } from "../services/cardService";
 import { getCardTransactionsService } from "../services/getCardTransactionService";
@@ -7,12 +6,10 @@ import { blockCardService } from '../services/blockCardService';
 import { unblockCardService } from "../services/unblockCardService";
 
 export async function createCard(req: Request, res: Response){
-    const apiKey:any = req.headers['x-api-key'];
-    console.log(apiKey);
-    const { employeeId, type } : { employeeId: number, type: cardRepository.TransactionTypes } = req.body;
-    console.log(req.body);
+    const apiKey = req.headers['x-api-key'] as string;
+    const { employeeId, type } = req.body;
+    
     await createCardService(apiKey, employeeId, type);
-    console.log("cartão criado")
     res.status(200).send("Card created.");
 }
 
