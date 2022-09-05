@@ -5,5 +5,5 @@ const createCardSchema = Joi.object({
     type: Joi.string().valid("groceries", "restaurants", "transport", "education", "health").required()
 });
 
-
+console.log("Fazendo a validação do joi")
 export default createCardSchema;

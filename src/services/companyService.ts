@@ -6,4 +6,5 @@ export async function validateApiKey(apiKey: string){
     if(!company){
         return errorResponses.unauthorized("Data")
     }
+    return company;
 }

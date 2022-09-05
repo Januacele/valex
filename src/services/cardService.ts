@@ -12,10 +12,10 @@ import errorResponses from "../Responses/errorResponses";
 
 
 export async function createCardService(apiKey: string, employeeId: number, type: cardRepository.TransactionTypes){
-
+    console.log("Entrei no service")
     await companyService.validateApiKey(apiKey); 
+    await employeeUtils.checkEmployeesIsResistered(employeeId);
 
-    const employee: any = await employeeUtils.checkEmployeesIsResistered(employeeId);
     const existingCard = await cardUtils.checkDoesNotHaveCardType(type, employeeId);
     if(existingCard){
         return errorResponses.conflict("Card already exist");
