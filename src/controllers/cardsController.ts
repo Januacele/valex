@@ -4,6 +4,7 @@ import { activateCardService } from "../services/activateCardService";
 import { createCardService } from "../services/cardService";
 import { getCardTransactionsService } from "../services/getCardTransactionService";
 import { blockCardService } from '../services/blockCardService';
+import { unblockCardService } from "../services/unblockCardService";
 
 export async function createCard(req: Request, res: Response){
     const apiKey:any = req.headers['x-api-key'];
@@ -41,4 +42,12 @@ export async function blockCard(req: Request, res: Response){
     await blockCardService(id, password);
 
     res.status(200).send("Card blocked.");
+}
+
+export async function unblockCard(req: Request, res: Response){
+    const { id, password } : { id: number, password: string } = res.locals.body;
+
+    await unblockCardService(id, password);
+
+    res.status(200).send("Card unblocked.");
 }

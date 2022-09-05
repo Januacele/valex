@@ -34,4 +34,9 @@ cardRouter.post("/card/block",
 );
 
 
+cardRouter.post("/card/unblock",
+    validSchema(blockUnblockCardSchema),
+    cardsController.unblockCard
+);
+
 export default cardRouter;
