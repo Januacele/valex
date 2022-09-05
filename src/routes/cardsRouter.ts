@@ -5,6 +5,7 @@ import validSchema from "../middlewares/validSchemaMiddleware";
 import activateCardSchema from "../schemas/activateCardSchema";
 import createCardSchema from "../schemas/creatCardSchema";
 import getCardTransactionsSchema from "../schemas/getCardTransactionsSchema";
+import blockUnblockCardSchema from '../schemas/blockUnblockCardSchema';
 
 const cardRouter = Router();
 
@@ -25,6 +26,11 @@ cardRouter.post("card/activate",
 cardRouter.get("/card",
     validSchema(getCardTransactionsSchema),
     cardsController.getCardTransactions
+);
+
+cardRouter.post("/card/block",
+    validSchema(blockUnblockCardSchema),
+    cardsController.blockCard
 );
 
 

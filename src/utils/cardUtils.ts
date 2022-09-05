@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
 import customParseFormat from "dayjs";
+import bcrypt from "bcrypt";
 
 import * as cardRepository from '../repositories/cardRepository';
 import * as paymentRepository from '../repositories/paymentRepository';
@@ -63,4 +64,22 @@ export async function getTransactionsData(cardId: number) {
     };
 
     return transactions;
+}
+
+
+export function checkCardBlockedStatus(blockedStatus: boolean, statusToCheck: boolean) {
+    const valueToCheck = statusToCheck ? !blockedStatus : blockedStatus;
+    if (valueToCheck) {
+        return errorResponses.unprocessableEntity("card blocked status");
+    }
+
+    return;
+}
+
+export function checkPassword(cardPassword: string, inputPassword: string) {
+    if (!bcrypt.compareSync(inputPassword, cardPassword)) {
+        return errorResponses.unprocessableEntity("card password");
+    }
+
+    return;
 }
