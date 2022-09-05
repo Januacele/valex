@@ -1,7 +1,9 @@
 import dayjs from "dayjs";
 import customParseFormat from "dayjs";
 
-import * as cardRepository from '../repositories/cardRepository'
+import * as cardRepository from '../repositories/cardRepository';
+import * as paymentRepository from '../repositories/paymentRepository';
+import * as rechargeRepository from '../repositories/rechargeRepository';
 import errorResponses from '../Responses/errorResponses';
 
 export async function checkDoesNotHaveCardType(type: cardRepository.TransactionTypes, employeeId: number): Promise<any>{
@@ -40,4 +42,25 @@ export function checkCardHasNotBeenActivated(password: string | null) {
     }
 
     return;
+}
+
+
+export async function getTransactionsData(cardId: number) {
+    const payments = await paymentRepository.findByCardId(cardId);    
+    let sumPayments = 0;
+    payments.forEach(payment => sumPayments += payment.amount);
+
+    const recharges = await rechargeRepository.findByCardId(cardId);
+    let sumRecharges = 0;
+    recharges.forEach(recharge => sumRecharges += recharge.amount);
+
+    const balance = sumRecharges - sumPayments;
+
+    const transactions = {
+        balance,
+        transactions: payments,
+        recharges
+    };
+
+    return transactions;
 }
