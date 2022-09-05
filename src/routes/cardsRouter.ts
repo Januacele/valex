@@ -17,7 +17,7 @@ cardRouter.post("/card",
     cardsController.createCard
 );
 
-cardRouter.post("card/activate",
+cardRouter.patch("card/:id/activate",
     validSchema(activateCardSchema),
     cardsController.activateCard
 );

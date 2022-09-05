@@ -78,3 +78,4 @@ export function checkPassword(cardPassword: string, inputPassword: string) {
 
     return;
 }
+

@@ -1,32 +1,40 @@
-import Cryptr from "cryptr";
 import bcrypt from "bcrypt";
+import dayjs from "dayjs";
 import "../setup";
 
 import * as cardRepository from '../repositories/cardRepository';
 import * as cardUtils from '../utils/cardUtils';
 import errorResponses from "../Responses/errorResponses";
 
-export async function activateCardService(id: number, securityCode: string, password: string){
-    const card : cardRepository.Card = await cardUtils.checkCardIsRegistered(id);
-    cardUtils.checkCardHasNotExpired(card.expirationDate);
-    cardUtils.checkCardHasNotBeenActivated(card.password);
+const DATE_CARD_FORMAT = "MM/YY";
+const PASSWORD_FORMAT_4_DIGITS = /^[0-9]{4}$/;
 
-    await validateSecurityCode(card, securityCode);
+export async function activateCardService(cardId: number, cvc: string, password: string){
+    const card = await cardUtils.checkCardIsRegistered(cardId);
+    validateExpirationDateOrFail(card.expirationDate);
+    validateCVCOrFail(cvc, card.securityCode);
+
+    const isAlreadyActive = card.password;
+    if (isAlreadyActive) return errorResponses.badRequest("data");
+    if (!PASSWORD_FORMAT_4_DIGITS.test(password)) return errorResponses.badRequest("invalid  data");
 
     const SALT = Number(process.env.SALT);
     const hashedPassword = bcrypt.hashSync(password, SALT);
-    await cardRepository.update(id, {password: hashedPassword});
+
+    await cardRepository.update(cardId, {password: hashedPassword});
 }
 
 
-async function validateSecurityCode(card: cardRepository.Card, securityCode : string){
-    const cryptr = new Cryptr(process.env.CRYPT_KEY!);
-
-    const hashedSecurityCode = cryptr.encrypt(securityCode);
-
-    if (card.securityCode !== hashedSecurityCode){
-        return errorResponses.unprocessableEntity("card security code");
+export function validateExpirationDateOrFail(expirationDate: string) {
+    const today = dayjs().format(DATE_CARD_FORMAT);
+    if (dayjs(today).isAfter(dayjs(expirationDate))) {
+      return errorResponses.badRequest("Data");
     }
-
-    return;
 }
+
+export function validateCVCOrFail(cvc: string, cardCVC: string) {
+    const isCVCValid = bcrypt.compareSync(cvc, cardCVC);
+    if (!isCVCValid) {
+      return errorResponses.unauthorized("data")
+    }
+  }

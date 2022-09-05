@@ -15,17 +15,17 @@ export async function createCard(req: Request, res: Response){
 
 
 export async function activateCard(req: Request, res: Response){
-    const { id, securityCode, password } : 
-    { id: number, securityCode: string, password: string } = res.locals.body;
+    const { id } = req.params;
+    const { cvc, password } = req.body;
 
-    await activateCardService(id, securityCode, password);
+    await activateCardService(Number(id), cvc, password);
 
     res.status(200).send("Card activated.");
 }
 
 
 export async function getCardTransactions(req: Request, res: Response){
-    const { number, cardholderName, expirationDate } : { number: string, cardholderName: string, expirationDate: string } = res.locals.body;
+    const { number, cardholderName, expirationDate } = req.body;
     
     const cardTransactions = await getCardTransactionsService(number, cardholderName, expirationDate);
 
